@@ -1,8 +1,8 @@
 <?php
+
 namespace Core;
 
 use App\Controller\User;
-use http\Header;
 
 class Application
 {
@@ -27,10 +27,15 @@ class Application
             $this->initController();
             $this->initAction();
 
-            $this->controller->{$this->actionName}();
-        } catch (RedirectException $e){
+            $view = new View();
+            $this->controller->setView($view);
+
+            $content = $this->controller->{$this->actionName}();
+            echo $content;
+
+        } catch (RedirectException $e) {
             header('Location: ' . $e->getUrl());
-        } catch (RouteExeption $e){
+        } catch (RouteExeption $e) {
             header("HTTP/1.0 404 Not Found");
             echo $e->getMessage();
         }
@@ -50,17 +55,19 @@ class Application
 //$this->route->addRoute('/blog/index', \App\Controller\Blog::class, 'indexAction');
     }
 
-    private function initController(){
+    private function initController()
+    {
         $controllerName = $this->route->getControllerName();
 
-        if (!class_exists($controllerName)){
+        if (!class_exists($controllerName)) {
             throw new RouteExeption('Cant not finf controller ' . $controllerName);
         }
 
         $this->controller = new $controllerName();
     }
 
-    private function initAction(){
+    private function initAction()
+    {
 
         $actionName = $this->route->getActionName();
 
